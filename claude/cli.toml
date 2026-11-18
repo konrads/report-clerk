@@ -1,0 +1,19 @@
+# Claude Code CLI options that have no settings.json equivalent. Read by src/report_clerk/claude.py.
+# Permissions are in settings.json. This directory is also a plugin (--plugin-dir): skills/ (and hooks/, agents/) here load.
+
+# Built-in tools that exist at all. Skill is needed to load skills from skills/.
+tools = ["Skill"]
+
+# Settings loaded besides settings.json. None: ~/.claude and project settings are ignored.
+setting_sources = []
+
+# Boolean CLI flags.
+flags = [
+  "restricted",               # no code-running tools, user/project settings ignored
+  "strict-mcp-config",        # only the in-process company MCP server
+  "no-session-persistence",   # don't write transcripts to ~/.claude
+  "no-chrome",
+]
+
+max_turns = 15
+max_budget_usd = 1.0

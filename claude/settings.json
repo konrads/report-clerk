@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "defaultMode": "dontAsk",
+    "allow": [
+      "mcp__company",
+      "Skill(company-report:sales-trends)"
+    ],
+    "deny": [
+      "Bash",
+      "Read",
+      "Edit",
+      "Write",
+      "NotebookEdit",
+      "WebFetch",
+      "WebSearch",
+      "Agent"
+    ]
+  },
+  "enableAllProjectMcpServers": false,
+  "disableBundledSkills": true,
+  "disableSkillShellExecution": true,
+  "enabledPlugins": {
+    "cc-plugin-agents-md@builtin": false,
+    "cc-plugin-plugin-authoring@builtin": false,
+    "cc-plugin-easel@builtin": false
+  },
+  "skillOverrides": {
+    "design": "off",
+    "doctor": "off"
+  }
+}

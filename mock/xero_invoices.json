@@ -1,0 +1,220 @@
+{
+ "Invoices": [
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2113",
+   "Contact": {
+    "Name": "Peak Performance Gym"
+   },
+   "DateString": "2026-09-21T00:00:00",
+   "Status": "PAID",
+   "Total": 8789.0,
+   "AmountDue": 0.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2111",
+   "Contact": {
+    "Name": "Northside Fitness"
+   },
+   "DateString": "2026-09-30T00:00:00",
+   "Status": "PAID",
+   "Total": 7689.0,
+   "AmountDue": 0.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2106",
+   "Contact": {
+    "Name": "Peak Performance Gym"
+   },
+   "DateString": "2026-10-02T00:00:00",
+   "Status": "PAID",
+   "Total": 8789.0,
+   "AmountDue": 0.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2104",
+   "Contact": {
+    "Name": "Coastal Recovery Studio"
+   },
+   "DateString": "2026-10-03T00:00:00",
+   "Status": "PAID",
+   "Total": 2739.0,
+   "AmountDue": 0.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2107",
+   "Contact": {
+    "Name": "Peak Performance Gym"
+   },
+   "DateString": "2026-10-07T00:00:00",
+   "Status": "PAID",
+   "Total": 16489.0,
+   "AmountDue": 0.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2115",
+   "Contact": {
+    "Name": "Harbour Day Spa"
+   },
+   "DateString": "2026-10-09T00:00:00",
+   "Status": "PAID",
+   "Total": 8789.0,
+   "AmountDue": 0.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2110",
+   "Contact": {
+    "Name": "Peak Performance Gym"
+   },
+   "DateString": "2026-10-14T00:00:00",
+   "Status": "PAID",
+   "Total": 3839.0,
+   "AmountDue": 0.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2100",
+   "Contact": {
+    "Name": "Urban Cycles"
+   },
+   "DateString": "2026-10-23T00:00:00",
+   "Status": "PAID",
+   "Total": 16489.0,
+   "AmountDue": 0.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2103",
+   "Contact": {
+    "Name": "Peak Performance Gym"
+   },
+   "DateString": "2026-10-24T00:00:00",
+   "Status": "PAID",
+   "Total": 17578.0,
+   "AmountDue": 0.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2114",
+   "Contact": {
+    "Name": "Northside Fitness"
+   },
+   "DateString": "2026-10-26T00:00:00",
+   "Status": "PAID",
+   "Total": 16489.0,
+   "AmountDue": 0.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2105",
+   "Contact": {
+    "Name": "Urban Cycles"
+   },
+   "DateString": "2026-10-28T00:00:00",
+   "Status": "AUTHORISED",
+   "Total": 3839.0,
+   "AmountDue": 3839.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2108",
+   "Contact": {
+    "Name": "Northside Fitness"
+   },
+   "DateString": "2026-10-28T00:00:00",
+   "Status": "PAID",
+   "Total": 8789.0,
+   "AmountDue": 0.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2109",
+   "Contact": {
+    "Name": "Northside Fitness"
+   },
+   "DateString": "2026-11-01T00:00:00",
+   "Status": "AUTHORISED",
+   "Total": 2739.0,
+   "AmountDue": 2739.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2117",
+   "Contact": {
+    "Name": "Urban Cycles"
+   },
+   "DateString": "2026-11-02T00:00:00",
+   "Status": "PAID",
+   "Total": 7678.0,
+   "AmountDue": 0.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2101",
+   "Contact": {
+    "Name": "Urban Cycles"
+   },
+   "DateString": "2026-11-09T00:00:00",
+   "Status": "PAID",
+   "Total": 8789.0,
+   "AmountDue": 0.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2102",
+   "Contact": {
+    "Name": "Coastal Recovery Studio"
+   },
+   "DateString": "2026-11-09T00:00:00",
+   "Status": "AUTHORISED",
+   "Total": 8789.0,
+   "AmountDue": 8789.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2112",
+   "Contact": {
+    "Name": "Urban Cycles"
+   },
+   "DateString": "2026-11-15T00:00:00",
+   "Status": "PAID",
+   "Total": 16489.0,
+   "AmountDue": 0.0
+  },
+  {
+   "Type": "ACCREC",
+   "CurrencyCode": "AUD",
+   "InvoiceNumber": "INV-2116",
+   "Contact": {
+    "Name": "Northside Fitness"
+   },
+   "DateString": "2026-11-16T00:00:00",
+   "Status": "AUTHORISED",
+   "Total": 8789.0,
+   "AmountDue": 8789.0
+  }
+ ]
+}

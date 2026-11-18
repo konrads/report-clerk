@@ -1,0 +1,38 @@
+[project]
+name = "report-clerk"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "requests",
+    "jinja2>=3.1.6",
+    "markdown>=3.11.3",
+    "claude-agent-sdk==0.2.184",
+    "openpyxl>=3.1.5",
+    "pillow>=13.0.0",
+    "nh3>=0.3.8",
+    "python-dotenv>=1.2.4",
+]
+
+[project.scripts]
+report-clerk = "report_clerk.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest",
+    "pytest-cov>=7.1.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.coverage.run]
+concurrency = ["multiprocessing"]
+parallel = true
+source = ["report_clerk"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 90
+exclude_also = ['if __name__ == "__main__":']

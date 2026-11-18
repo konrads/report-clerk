@@ -1,0 +1,107 @@
+{
+ "totalCount": 9,
+ "totalPages": 1,
+ "pageNumber": 1,
+ "pageSize": 100,
+ "results": [
+  {
+   "id": 1,
+   "partNumber": "PLUNGE-TUB",
+   "partDescription": "Cold Plunge Tub",
+   "quantity": "14",
+   "uom": {
+    "id": 1,
+    "name": "Each",
+    "abbreviation": "ea"
+   }
+  },
+  {
+   "id": 2,
+   "partNumber": "CHILLER-PRO",
+   "partDescription": "Plunge Chiller Pro",
+   "quantity": "3",
+   "uom": {
+    "id": 1,
+    "name": "Each",
+    "abbreviation": "ea"
+   }
+  },
+  {
+   "id": 3,
+   "partNumber": "PLUNGE-COVER",
+   "partDescription": "Plunge Cover",
+   "quantity": "41",
+   "uom": {
+    "id": 1,
+    "name": "Each",
+    "abbreviation": "ea"
+   }
+  },
+  {
+   "id": 4,
+   "partNumber": "SAUNA-BARREL-4",
+   "partDescription": "Barrel Sauna 4-Person",
+   "quantity": "2",
+   "uom": {
+    "id": 1,
+    "name": "Each",
+    "abbreviation": "ea"
+   }
+  },
+  {
+   "id": 5,
+   "partNumber": "SAUNA-IR-2",
+   "partDescription": "Infrared Sauna 2-Person",
+   "quantity": "9",
+   "uom": {
+    "id": 1,
+    "name": "Each",
+    "abbreviation": "ea"
+   }
+  },
+  {
+   "id": 6,
+   "partNumber": "SAUNA-STONES-20",
+   "partDescription": "Sauna Stones 20kg",
+   "quantity": "120",
+   "uom": {
+    "id": 1,
+    "name": "Each",
+    "abbreviation": "ea"
+   }
+  },
+  {
+   "id": 7,
+   "partNumber": "EBIKE-COMMUTER",
+   "partDescription": "Commuter E-Bike",
+   "quantity": "4",
+   "uom": {
+    "id": 1,
+    "name": "Each",
+    "abbreviation": "ea"
+   }
+  },
+  {
+   "id": 8,
+   "partNumber": "EBIKE-TRAIL",
+   "partDescription": "Trail E-Bike",
+   "quantity": "11",
+   "uom": {
+    "id": 1,
+    "name": "Each",
+    "abbreviation": "ea"
+   }
+  },
+  {
+   "id": 9,
+   "partNumber": "EBIKE-BATT",
+   "partDescription": "Spare Battery",
+   "quantity": "1",
+   "uom": {
+    "id": 1,
+    "name": "Each",
+    "abbreviation": "ea"
+   }
+  }
+ ]
+}

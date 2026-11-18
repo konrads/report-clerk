@@ -1,0 +1,40 @@
+name: report
+
+on:
+  schedule:
+    - cron: "0 21 * * 0-4"   # Monday to Friday 07:00 AEST
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: read
+
+concurrency:
+  group: scheduled-reports
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv run --frozen report-clerk run --out out
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SHOPIFY_ACCESS_TOKEN: ${{ secrets.SHOPIFY_ACCESS_TOKEN }}
+          XERO_CLIENT_ID: ${{ secrets.XERO_CLIENT_ID }}
+          XERO_CLIENT_SECRET: ${{ secrets.XERO_CLIENT_SECRET }}
+          FISHBOWL_USERNAME: ${{ secrets.FISHBOWL_USERNAME }}
+          FISHBOWL_PASSWORD: ${{ secrets.FISHBOWL_PASSWORD }}
+          MAILGUN_API_KEY: ${{ secrets.MAILGUN_API_KEY }}
+          CLAUDE_OAUTH_TOKEN: ${{ secrets.CLAUDE_OAUTH_TOKEN }}
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+      # Reports hold business data: keep them only to debug a failed run, and only briefly.
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: reports
+          path: out/
+          retention-days: 3

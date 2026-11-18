@@ -1,0 +1,59 @@
+# report-clerk config.
+# Secrets don't go here: they come from env vars, .env or GitHub secrets.
+# Only the names in .env.example are read from the environment; everything else is set here.
+
+[shopify]
+shop = "company-dev"            # <shop>.myshopify.com
+api_version = "2026-07"
+
+[xero]
+# Custom Connection app linked to the Xero demo company. Needs XERO_CLIENT_ID / XERO_CLIENT_SECRET.
+
+[fishbowl]
+url = "https://fishbowl.example.com:2456"
+
+[mailgun]
+# Free plan: sandbox domain; recipients must be authorised in Mailgun first.
+domain = "sandbox0000.mailgun.org"
+base_url = "https://api.mailgun.net"   # EU accounts: https://api.eu.mailgun.net
+sender = "Reports <reports@sandbox0000.mailgun.org>"
+to = ["you@example.com"]
+
+[claude]
+# Auth: CLAUDE_OAUTH_TOKEN (subscription, from `claude setup-token`), else CLAUDE_API_KEY,
+# else the local `claude auth login`.
+model = "claude-opus-5-5"
+effort = "medium"           # low | medium | high | xhigh | max
+setup_dir = "claude"        # permissions, CLI flags, prompt, skills: the only source for what Claude may do
+
+# Reports run in order. Comment out a block to skip it.
+# Each id needs src/report_clerk/reports/<id>.py and src/report_clerk/templates/<id>.html.
+# Optional per report: title, days (default 30), prompt (adds an AI section), to (overrides mailgun.to).
+
+[[reports]]
+id = "sales_summary"
+title = "Sales, last 30 days"
+days = 30
+# Only grant tools whose data may be shared with this report's recipients.
+claude_tools = ["shopify_sales_comparison", "shopify_daily_sales", "shopify_sales_by_category", "shopify_top_products"]
+prompt = """
+Compare sales across ice baths, saunas and e-bikes. Point out trends in daily sales,
+any category that is growing or falling, and anything unusual worth a follow-up.
+"""
+
+[[reports]]
+id = "profit_and_loss"
+title = "Profit and loss, last 30 days"
+days = 30
+
+# Fishbowl not set up yet.
+# [[reports]]
+# id = "stock_levels"
+# title = "Stock levels"
+
+[execution]
+timezone = "Australia/Brisbane"
+report_timeout = 120       # seconds; core report preparation
+attachment_timeout = 30
+analysis_timeout = 90      # hard deadline, including Claude's tool work
+render_timeout = 15

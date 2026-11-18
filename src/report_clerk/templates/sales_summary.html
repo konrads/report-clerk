@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block period %}<p class="period">{{ period_start.isoformat() }} to {{ period_end.isoformat() }} · Shopify</p>{% endblock %}
+{% block content %}
+<p>Net merchandise sales after discounts and refunded/removed items; excludes tax and shipping. Based on order creation date.</p>
+<table class="stats"><tr>
+  <td class="stat"><div class="label">Net merchandise sales</div><div class="value">{{ currency }} {{ net_merchandise_sales | money }}</div></td>
+  <td class="stat"><div class="label">Orders</div><div class="value">{{ order_count }}</div></td>
+  <td class="stat"><div class="label">Average order value</div><div class="value">{{ average_order_value | money }}</div></td>
+</tr></table>
+
+<h2>By category</h2>
+<table class="data">
+  <tr><th>Category</th><th class="num">Orders</th><th class="num">Units</th><th class="num">Net merchandise sales</th></tr>
+  {% for c in categories %}
+  <tr><td>{{ c.category }}</td><td class="num">{{ c.order_count }}</td><td class="num">{{ c.units }}</td><td class="num">{{ c.net_merchandise_sales | money }}</td></tr>
+  {% else %}
+  <tr><td colspan="4">No sales in this period.</td></tr>
+  {% endfor %}
+</table>
+
+<h2>Top products</h2>
+<table class="data">
+  <tr><th>Product</th><th>Category</th><th class="num">Units</th><th class="num">Net merchandise sales</th></tr>
+  {% for p in top_products %}
+  <tr><td>{{ p.title }}</td><td>{{ p.category }}</td><td class="num">{{ p.units }}</td><td class="num">{{ p.net_merchandise_sales | money }}</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

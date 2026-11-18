@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ title }}</title>
+<style>
+  /* Colours from the company website theme: cream #FDF8EE, ink #120D07, sage #EEF1EA, border #C3CDC5. */
+  body { margin: 0; background: #FDF8EE; color: #120D07; font-family: Inter, Arial, sans-serif; font-size: 15px; line-height: 1.5; }
+  .wrap { max-width: 680px; margin: 0 auto; padding: 32px 20px; }
+  .logo { height: 24px; }
+  h1 { font-size: 26px; font-weight: 500; letter-spacing: -0.01em; margin: 28px 0 4px; }
+  h2 { font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin: 32px 0 10px; }
+  .period { color: rgba(18, 13, 7, 0.6); margin: 0; }
+  .stats { width: 100%; border-collapse: separate; border-spacing: 8px 0; margin: 20px -8px 0; }
+  .stat { background: #EEF1EA; border-radius: 8px; padding: 14px 16px; }
+  .stat .label { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: rgba(18, 13, 7, 0.6); }
+  .stat .value { font-size: 22px; font-weight: 500; }
+  table.data { width: 100%; border-collapse: collapse; }
+  table.data th { text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid #120D07; padding: 6px 4px; }
+  table.data td { border-bottom: 1px solid #C3CDC5; padding: 8px 4px; }
+  table.data .num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.data tr.total td { font-weight: 600; border-bottom: 1px solid #120D07; }
+  .analysis { background: #120D07; color: #FDF8EE; border-radius: 8px; padding: 4px 20px; margin-top: 32px; }
+  .analysis h2 { color: #FDF8EE; }
+  .footer { margin-top: 40px; font-size: 12px; color: rgba(18, 13, 7, 0.6); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <img class="logo" src="{{ logo_src }}" alt="Company logo">
+  <h1>{{ title }}</h1>
+  {% block period %}{% endblock %}
+  {% block content %}{% endblock %}
+  {% if analysis %}
+  <div class="analysis">
+    <h2>Analysis</h2>
+    {{ analysis }}
+  </div>
+  {% endif %}
+  <p class="footer">Generated {{ (as_of_date if as_of_date is defined else period_end).isoformat() }} by report-clerk.</p>
+</div>
+</body>
+</html>
