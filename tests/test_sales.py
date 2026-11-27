@@ -3,7 +3,7 @@ from decimal import Decimal
 
 import pytest
 
-from report_clerk.sales import compare_sales
+from report_clerk.services.shopify import compare_sales
 from report_clerk.services.shopify import Order, LineItem
 
 

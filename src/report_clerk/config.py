@@ -12,11 +12,6 @@ DEFAULT_CONFIG = Path("config.toml")
 # The only values read from the environment (or .env); everything else comes from config.toml.
 CREDENTIALS = {
     "SHOPIFY_ACCESS_TOKEN": ("shopify", "access_token"),
-    "XERO_CLIENT_ID": ("xero", "client_id"),
-    "XERO_CLIENT_SECRET": ("xero", "client_secret"),
-    "FISHBOWL_USERNAME": ("fishbowl", "username"),
-    "FISHBOWL_PASSWORD": ("fishbowl", "password"),
-    "MAILGUN_API_KEY": ("mailgun", "api_key"),
     "CLAUDE_OAUTH_TOKEN": ("claude", "oauth_token"),
     "CLAUDE_API_KEY": ("claude", "api_key"),
 }
@@ -37,28 +32,19 @@ class ShopifyConfig(SourceConfig):
     api_version: str = "2026-07"
 
 
-class XeroConfig(SourceConfig):
-    required: ClassVar[tuple[str, ...]] = ("client_id", "client_secret")
-    client_id: str = ""
-    client_secret: str = ""
+class BrowserConfig(SourceConfig):
+    # Shared by services that drive a website; the profile holds the login session.
+    profile_dir: Path = Path("~/.report-clerk/browser-profile")
+    headed: bool = False
+    screenshot_dir: Path = Path("out")
+    download_dir: Path | None = None  # keep downloaded files here; default: a temp dir
 
 
-class FishbowlConfig(SourceConfig):
-    required: ClassVar[tuple[str, ...]] = ("url", "username", "password")
-    url: str = ""
-    username: str = ""
-    password: str = ""
-    app_id: int = 7301
-    app_name: str = "report-clerk"
-
-
-class MailgunConfig(SourceConfig):
-    required: ClassVar[tuple[str, ...]] = ("domain", "api_key", "sender", "to")
-    domain: str = ""
-    api_key: str = ""
-    base_url: str = "https://api.mailgun.net"
-    sender: str = ""
-    to: list[str] = []
+class XeroConfig(BrowserConfig):
+    # Xero web-app report exports, the only Xero source.
+    required: ClassVar[tuple[str, ...]] = ("org_short_code",)
+    org_short_code: str = ""
+    profile_dir: Path = Path("~/.report-clerk/xero-profile")
 
 
 class ClaudeConfig(SourceConfig):
@@ -77,23 +63,13 @@ class ReportConfig(BaseModel):
     days: int = Field(default=30, ge=1, le=3650)
     prompt: str = ""
     claude_tools: list[str] = []
-    to: list[str] = []
-
-
-class ExecutionConfig(BaseModel):
-    timezone: str = "Australia/Brisbane"
-    report_timeout: float = Field(default=120, gt=0, le=300)
-    attachment_timeout: float = Field(default=30, gt=0, le=120)
-    analysis_timeout: float = Field(default=90, gt=0, le=300)
-    render_timeout: float = Field(default=15, gt=0, le=60)
+    options: dict = {}  # report-specific settings, validated by the report module
 
 
 class Settings(BaseModel):
-    execution: ExecutionConfig = ExecutionConfig()
+    timezone: str = "Australia/Brisbane"  # reporting date is yesterday here
     shopify: ShopifyConfig = ShopifyConfig()
     xero: XeroConfig = XeroConfig()
-    fishbowl: FishbowlConfig = FishbowlConfig()
-    mailgun: MailgunConfig = MailgunConfig()
     claude: ClaudeConfig = ClaudeConfig()
     reports: list[ReportConfig] = []
 

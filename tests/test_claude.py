@@ -2,7 +2,9 @@ import os
 import subprocess
 import sys
 
-from report_clerk import claude
+import pytest
+
+from report_clerk.analysis import agent as claude
 from report_clerk.config import ClaudeConfig
 
 
@@ -12,6 +14,7 @@ def test_auth_prefers_subscription():
     assert claude.auth_env(ClaudeConfig()) == {}
 
 
+@pytest.mark.skipif(os.name == "nt", reason="POSIX exec wrapper")
 def test_wrapper_strips_credentials(tmp_path):
     wrapper = tmp_path / "claude"
     wrapper.write_text(

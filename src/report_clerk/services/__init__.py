@@ -5,11 +5,10 @@ from pathlib import Path
 
 from report_clerk.config import Settings
 from report_clerk.services import mock
-from report_clerk.services.fishbowl import FishbowlService
 from report_clerk.services.shopify import ShopifyService
 from report_clerk.services.xero import XeroService
 
-SOURCES = ("shopify", "xero", "fishbowl")
+SOURCES = ("shopify", "xero")
 
 
 class DataSources:
@@ -20,15 +19,11 @@ class DataSources:
 
     @cached_property
     def shopify(self) -> ShopifyService:
-        return mock.MockShopify(self.mock_dir) if self.mock_dir else ShopifyService(self.settings.shopify, self.settings.execution.timezone)
+        return mock.MockShopify(self.mock_dir) if self.mock_dir else ShopifyService(self.settings.shopify, self.settings.timezone)
 
     @cached_property
     def xero(self) -> XeroService:
         return mock.MockXero(self.mock_dir) if self.mock_dir else XeroService(self.settings.xero)
-
-    @cached_property
-    def fishbowl(self) -> FishbowlService:
-        return mock.MockFishbowl(self.mock_dir) if self.mock_dir else FishbowlService(self.settings.fishbowl)
 
     def configured(self) -> list[str]:
         if self.mock_dir:
@@ -36,7 +31,5 @@ class DataSources:
         return [s for s in SOURCES if not getattr(self.settings, s).missing()]
 
     def reporting_date(self) -> date:
-        return mock.as_of(self.mock_dir) if self.mock_dir else datetime.now(ZoneInfo(self.settings.execution.timezone)).date() - timedelta(days=1)
+        return mock.as_of(self.mock_dir) if self.mock_dir else datetime.now(ZoneInfo(self.settings.timezone)).date() - timedelta(days=1)
 
-    def snapshot_date(self) -> date:
-        return mock.as_of(self.mock_dir) if self.mock_dir else datetime.now(ZoneInfo(self.settings.execution.timezone)).date()

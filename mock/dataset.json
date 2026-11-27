@@ -1,4 +1,4 @@
 {
  "as_of": "2026-11-18",
- "description": "Mock datasets in Shopify GraphQL, Xero and Fishbowl API response shapes. Reports run as if today were as_of."
+ "description": "Mock datasets in Shopify GraphQL response shapes and Xero web-app export rows. Reports run as if today were as_of."
 }

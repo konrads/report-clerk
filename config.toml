@@ -1,23 +1,19 @@
 # report-clerk config.
-# Secrets don't go here: they come from env vars, .env or GitHub secrets.
+# Secrets don't go here: they come from env vars or .env.
 # Only the names in .env.example are read from the environment; everything else is set here.
+
+timezone = "Australia/Brisbane"   # reports end yesterday in this timezone
 
 [shopify]
 shop = "company-dev"            # <shop>.myshopify.com
 api_version = "2026-07"
 
 [xero]
-# Custom Connection app linked to the Xero demo company. Needs XERO_CLIENT_ID / XERO_CLIENT_SECRET.
-
-[fishbowl]
-url = "https://fishbowl.example.com:2456"
-
-[mailgun]
-# Free plan: sandbox domain; recipients must be authorised in Mailgun first.
-domain = "sandbox0000.mailgun.org"
-base_url = "https://api.mailgun.net"   # EU accounts: https://api.eu.mailgun.net
-sender = "Reports <reports@sandbox0000.mailgun.org>"
-to = ["you@example.com"]
+# Xero data comes only from web-app report exports. Local only: a login (with 2FA) may open a browser window.
+org_short_code = "SWP1y"                    # from reporting.xero.com/!SWP1y/...
+profile_dir = "~/.report-clerk/xero-profile"  # dedicated browser profile; holds the Xero session
+headed = false                              # true: show the browser for every export
+screenshot_dir = "out"                      # screenshot of the page when an export fails
 
 [claude]
 # Auth: CLAUDE_OAUTH_TOKEN (subscription, from `claude setup-token`), else CLAUDE_API_KEY,
@@ -26,34 +22,45 @@ model = "claude-opus-5-5"
 effort = "medium"           # low | medium | high | xhigh | max
 setup_dir = "claude"        # permissions, CLI flags, prompt, skills: the only source for what Claude may do
 
-# Reports run in order. Comment out a block to skip it.
-# Each id needs src/report_clerk/reports/<id>.py and src/report_clerk/templates/<id>.html.
-# Optional per report: title, days (default 30), prompt (adds an AI section), to (overrides mailgun.to).
+# Reports run in order; each writes <id>-<date>.xlsx (Summary sheet first) to the --out folder.
+# Each id needs src/report_clerk/reports/<id>.py. Comment out a block to skip it.
+# Optional per report: title, days (default 30), prompt (adds a Claude summary to the section),
+# options (report-specific).
 
 [[reports]]
 id = "sales_summary"
 title = "Sales, last 30 days"
 days = 30
-# Only grant tools whose data may be shared with this report's recipients.
+# Only grant tools whose data may be shared with the report's readers.
 claude_tools = ["shopify_sales_comparison", "shopify_daily_sales", "shopify_sales_by_category", "shopify_top_products"]
 prompt = """
-Compare sales across ice baths, saunas and e-bikes. Point out trends in daily sales,
-any category that is growing or falling, and anything unusual worth a follow-up.
+Compare sales across ice baths, saunas and e-bikes against the previous period.
+List the points of interest: categories growing or falling, unusual days, anything worth a follow-up.
 """
 
+# Xero-sourced rows of the Warehouse Operations Metrics workbook, one column per completed month.
 [[reports]]
-id = "profit_and_loss"
-title = "Profit and loss, last 30 days"
-days = 30
+id = "warehouse_metrics"
+title = "Warehouse operations metrics"
 
-# Fishbowl not set up yet.
-# [[reports]]
-# id = "stock_levels"
-# title = "Stock levels"
+[reports.options]
+# months = 12              # optional: completed months back; unset = all history
+fulfilled_order_accounts = ["200 - Sales Income (B2C)", "206 - Sales - Sydney Gym Fitout Co."]
+fulfilled_order_sources = ["Receivable Invoice"]
+min_order_amount = 0.01    # 1-cent invoices are not orders
+cogs_accounts = ["310 - Cost of Goods Sold (B2C)", "312 - Cost of Goods Sold - Sydney Gym Fitout Co.", "313 - Cost of Goods Sold (B2B)"]
+freight_accounts = ["320 - Freight Cost"]
+rent_accounts = ["469 - Rent Cost"]
+rent_contacts = ["Michael Oldmeadow"]   # warehouse landlord; the account also holds office rent
+warehouse_expense_accounts = ["454 - Warehouse Cost"]
+inventory_adjustment_accounts = ["Scrapped - Scrapped Inventory", "InvAdj - Inventory Adjustment"]
+average_order_value_label = "Average value of invoices"   # Executive Summary row; unverified, comment out to skip
 
-[execution]
-timezone = "Australia/Brisbane"
-report_timeout = 120       # seconds; core report preparation
-attachment_timeout = 30
-analysis_timeout = 90      # hard deadline, including Claude's tool work
-render_timeout = 15
+[reports.options.freight_carriers]   # carrier = description prefix
+"PPND" = "PPND ENTERPRISES"
+"Grace Removals" = "Grace Removals"
+"Mainfreight Distribution" = "Mainfreight Distribution"
+"TNT Express" = "TNT Express"
+"FreightFixer" = "FreightFixer"
+"Aramex" = "Aramex"
+"Australia Post" = "Australia Post"

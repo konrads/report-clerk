@@ -23,9 +23,6 @@ TOOL_SOURCES = {
     "shopify_top_products": "shopify",
     "shopify_daily_sales": "shopify",
     "shopify_sales_comparison": "shopify",
-    "xero_profit_and_loss": "xero",
-    "xero_invoice_summary": "xero",
-    "fishbowl_inventory": "fishbowl",
 }
 
 DAYS = {"type": "integer", "default": 30, "minimum": 1, "maximum": 365, "description": "how many days back from today"}
@@ -110,7 +107,7 @@ def build(services: DataSources, allowed_tools: list[str]) -> list[SdkMcpTool]:
         @bounded_tool("shopify_sales_comparison", "Equal calendar-period sales comparison, category changes, zero-sales days and high-sales days; calculations supplied by Python.", _schema(days=DAYS))
         async def shopify_sales_comparison(args: dict) -> dict:
             def comparison():
-                from report_clerk.sales import compare_sales
+                from report_clerk.services.shopify import compare_sales
                 days = int(args.get("days", 30))
                 if not 1 <= days <= 3650:
                     raise ValueError("days must be between 1 and 3650")
@@ -120,29 +117,5 @@ def build(services: DataSources, allowed_tools: list[str]) -> list[SdkMcpTool]:
             return await _call(comparison)
 
         tools += [shopify_sales_by_category, shopify_top_products, shopify_daily_sales, shopify_sales_comparison]
-
-    if "xero" in configured:
-
-        @bounded_tool("xero_profit_and_loss", "Xero profit and loss report between two dates.", _schema(from_date=DATE, to_date=DATE))
-        async def xero_profit_and_loss(args: dict) -> dict:
-            return await _call(services.xero.profit_and_loss, date.fromisoformat(args["from_date"]), date.fromisoformat(args["to_date"]))
-
-        @bounded_tool("xero_invoice_summary", "Xero invoice count and total amount due for invoices raised in the last N days; no customer details.", _schema(days=DAYS))
-        async def xero_invoice_summary(args: dict) -> dict:
-            def summary():
-                from report_clerk.services.xero import invoice_summary
-                return invoice_summary(services.xero.invoices(period_start(args), services.reporting_date()))
-
-            return await _call(summary)
-
-        tools += [xero_profit_and_loss, xero_invoice_summary]
-
-    if "fishbowl" in configured:
-
-        @bounded_tool("fishbowl_inventory", "Fishbowl quantity on hand per part.", _schema())
-        async def fishbowl_inventory(args: dict) -> dict:
-            return await _call(services.fishbowl.inventory)
-
-        tools.append(fishbowl_inventory)
 
     return [t for t in tools if t.name in allowed_tools]

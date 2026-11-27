@@ -1,4 +1,5 @@
 from datetime import date
+from importlib.resources import files
 from decimal import Decimal
 from io import BytesIO
 from pathlib import Path
@@ -6,10 +7,11 @@ from typing import Any
 
 from openpyxl import Workbook
 from openpyxl.drawing.image import Image
-from openpyxl.styles import Border, Font, PatternFill, Side
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 
-# Each report declares SHEETS = [(sheet name, template_data key, [columns])]; this turns them into one workbook.
-Sheet = tuple[str, str, list[str]]
+# Each report declares SHEETS = [(sheet name, data key, [columns] or data key of columns)]; a Summary sheet comes first.
+Sheet = tuple[str, str, list[str] | str]
+LOGO = Path(str(files("report_clerk").joinpath("assets", "company_logo.png")))
 
 HEADER_FONT = Font(bold=True, color="120D07")
 HEADER_FILL = PatternFill("solid", fgColor="EEF1EA")
@@ -28,10 +30,12 @@ def _text(cell) -> None:
         cell.data_type = "s"
 
 
-def build(title: str, sheets: list[Sheet], template_data: dict, logo: Path) -> bytes:
+def build(title: str, summary: list[tuple[str, str]], sheets: list[Sheet], data: dict, logo: Path = LOGO) -> bytes:
     workbook = Workbook()
     workbook.remove(workbook.active)
-    for name, key, columns in sheets:
+    data = {**data, "_summary": [{"item": label, "value": value} for label, value in summary]}
+    for name, key, columns in [("Summary", "_summary", ["item", "value"]), *sheets]:
+        columns = data[columns] if isinstance(columns, str) else columns
         ws = workbook.create_sheet(name[:31])
         image = Image(str(logo))
         image.width, image.height = image.width * 24 // image.height, 24
@@ -45,7 +49,7 @@ def build(title: str, sheets: list[Sheet], template_data: dict, logo: Path) -> b
             cell = ws.cell(FIRST_ROW, col, column.replace("_", " ").capitalize())
             _text(cell)
             cell.font, cell.fill, cell.border = HEADER_FONT, HEADER_FILL, HEADER_BORDER
-        for r, row in enumerate(template_data[key], start=FIRST_ROW + 1):
+        for r, row in enumerate(data[key], start=FIRST_ROW + 1):
             for col, column in enumerate(columns, start=1):
                 cell = ws.cell(r, col, _value(row, column))
                 _text(cell)
@@ -58,6 +62,10 @@ def build(title: str, sheets: list[Sheet], template_data: dict, logo: Path) -> b
             values = [str(ws.cell(r, col).value or "") for r in range(FIRST_ROW, ws.max_row + 1)]
             ws.column_dimensions[ws.cell(FIRST_ROW, col).column_letter].width = min(max(map(len, values)) + 2, 50)
         ws.freeze_panes = ws.cell(FIRST_ROW + 1, 1)
+        if key == "_summary":
+            ws.column_dimensions["B"].width = 80
+            for (cell,) in ws.iter_rows(min_row=FIRST_ROW + 1, min_col=2, max_col=2):
+                cell.alignment = Alignment(wrap_text=True, vertical="top")
 
     out = BytesIO()
     workbook.save(out)

@@ -9,14 +9,13 @@ import sys
 import tempfile
 import tomllib
 from collections.abc import Iterator
-from contextlib import contextmanager
+from contextlib import contextmanager, nullcontext
 from pathlib import Path
 
 import claude_agent_sdk
 from claude_agent_sdk import ClaudeAgentOptions, ResultMessage, create_sdk_mcp_server, query
 
-from report_clerk import tools
-from report_clerk.execution import execute
+from report_clerk.analysis import tools
 from report_clerk.config import ClaudeConfig
 from report_clerk.services import DataSources
 
@@ -26,11 +25,14 @@ MCP_NAME = "company"
 SETUP_FILES = ("settings.json", "cli.toml", "system-prompt.md", ".claude-plugin/plugin.json")
 
 # The SDK merges options.env over the inherited environment, so it cannot remove variables.
-# The CLI is started through this wrapper instead, which keeps only these names.
+# POSIX starts the CLI through this wrapper, Windows through a briefly trimmed os.environ; both keep only these names.
 KEEP = (
     "PATH", "HOME", "USER", "LOGNAME", "LANG", "LC_ALL", "LC_CTYPE", "TZ", "TMPDIR", "PWD",
     "CLAUDE_CODE_ENTRYPOINT", "CLAUDE_CODE_SDK_READS_SESSION_STATE",
+    "SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "COMSPEC", "PATHEXT", "USERPROFILE", "USERNAME", "APPDATA", "LOCALAPPDATA",
+    "TEMP", "TMP", "HOMEDRIVE", "HOMEPATH", "PROGRAMDATA", "PROGRAMFILES",
 )
+WINDOWS = os.name == "nt"
 KEEP_PREFIXES = ("CLAUDE_AGENT_SDK_",)
 PASS_PREFIX = "REPORT_CLERK_PASS_"
 
@@ -55,8 +57,28 @@ def setup_errors(setup_dir: Path) -> list[str]:
 
 
 def cli_path() -> str:
-    bundled = Path(claude_agent_sdk.__file__).parent / "_bundled" / "claude"
-    return str(bundled) if bundled.is_file() else shutil.which("claude") or "claude"
+    bundled = Path(claude_agent_sdk.__file__).parent / "_bundled"
+    found = next((p for p in (bundled / "claude.exe", bundled / "claude") if p.is_file()), None)
+    return str(found) if found else shutil.which("claude") or "claude"
+
+
+def child_env(environ) -> dict[str, str]:
+    env = {k: v for k, v in environ.items() if k.upper() in KEEP or k.startswith(KEEP_PREFIXES)}
+    env.update({k[len(PASS_PREFIX):]: v for k, v in environ.items() if k.startswith(PASS_PREFIX)})
+    return env
+
+
+@contextmanager
+def trimmed_environ(extra: dict[str, str]) -> Iterator[None]:
+    # Windows: no exec wrapper, so os.environ is trimmed while the CLI runs and restored after.
+    saved = dict(os.environ)
+    os.environ.clear()
+    os.environ.update(child_env({**saved, **extra}))
+    try:
+        yield
+    finally:
+        os.environ.clear()
+        os.environ.update(saved)
 
 
 def logged_in() -> bool:
@@ -76,11 +98,8 @@ def auth_env(config: ClaudeConfig) -> dict[str, str]:
     return {}
 
 
-def analyse(config: ClaudeConfig, services: DataSources, prompt: str, report_title: str, report_data: str, allowed_tools: list[str], timeout: float = 90) -> str:
-    return execute(_analyse_sync, config, services, prompt, report_title, report_data, allowed_tools, timeout=timeout)
-
-
-def _analyse_sync(config, services, prompt, report_title, report_data, allowed_tools):
+def analyse(config: ClaudeConfig, services: DataSources, prompt: str, report_title: str, report_data: str, allowed_tools: list[str]) -> str:
+    # Bounded by the turn and cost caps in claude/cli.toml.
     return asyncio.run(_analyse(config, services, prompt, report_title, report_data, allowed_tools))
 
 
@@ -89,13 +108,18 @@ def agent_options(config: ClaudeConfig, services: DataSources, allowed_tools: li
     # Everything Claude may do comes from the setup dir; only the auth, tools and paths are added here.
     setup = config.setup_dir.resolve()
     cli = tomllib.loads((setup / "cli.toml").read_text())
-    with tempfile.TemporaryDirectory() as bin_dir, tempfile.TemporaryDirectory() as work_dir:
-        wrapper = Path(bin_dir) / "claude"
-        wrapper.write_text(WRAPPER.format(python=sys.executable, keep=KEEP, prefixes=KEEP_PREFIXES, passed=PASS_PREFIX, cli=cli_path()))
-        wrapper.chmod(stat.S_IRWXU)
+    environ = trimmed_environ(auth_env(config)) if WINDOWS else nullcontext()
+    with tempfile.TemporaryDirectory() as bin_dir, tempfile.TemporaryDirectory() as work_dir, environ:
+        if WINDOWS:
+            launcher, env = cli_path(), {}
+        else:
+            wrapper = Path(bin_dir) / "claude"
+            wrapper.write_text(WRAPPER.format(python=sys.executable, keep=KEEP, prefixes=KEEP_PREFIXES, passed=PASS_PREFIX, cli=cli_path()))
+            wrapper.chmod(stat.S_IRWXU)
+            launcher, env = str(wrapper), auth_env(config)
         yield ClaudeAgentOptions(
-            cli_path=str(wrapper),
-            env=auth_env(config),
+            cli_path=launcher,
+            env=env,
             cwd=work_dir,
             model=config.model,
             effort=config.effort,

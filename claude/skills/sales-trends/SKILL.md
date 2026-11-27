@@ -7,4 +7,4 @@ Call `shopify_sales_comparison(days=N)`, where N is the inclusive number of cale
 
 Use its calculated changes, category ordering and high-sales days directly. Both periods contain N dates, including zero-sales days. `change_without_high_sales_days` excludes identified high-sales days from both periods. A null percentage means the previous value is zero; say "new" only when `new` is true. If `meets_minimum_order_count` is false, state that the sample is too small and make no trend claim.
 
-Reply in Markdown, no heading, at most 120 words: net merchandise sales and order counts for both periods with currency; category changes in supplied order; material high-sales days and the supplied change without high-sales days. Do not calculate additional statistics or infer causes from sales figures alone.
+Reply in plain text, no heading, at most 120 words: net merchandise sales and order counts for both periods with currency; category changes in supplied order; material high-sales days and the supplied change without high-sales days. Do not calculate additional statistics or infer causes from sales figures alone.

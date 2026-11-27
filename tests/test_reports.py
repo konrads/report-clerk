@@ -2,10 +2,10 @@ from datetime import date
 from decimal import Decimal
 
 from report_clerk import config
-from report_clerk import render
 from report_clerk.services import DataSources
 from report_clerk.services.shopify import ShopifyService
 from report_clerk.reports import sales_summary
+from report_clerk.run import Report
 
 
 def node(name, day, total, lines):
@@ -51,35 +51,8 @@ def test_sales_summary(write_config, monkeypatch, tmp_path):
     ]
     assert [d.order_count for d in template_data["daily"]] == [1, 2]
 
-    html = render.html(report, template_data, analysis="**Saunas** lead.")
-    assert "AUD 31,070.00" in html and "<strong>Saunas</strong> lead." in html
-    (tmp_path / "sales_summary.html").write_text(html)
-
-
-def test_analysis_drops_injected_html():
-    html = str(render.analysis_html('**Up** <img src="https://x.example/t.png"> [click](https://x.example) ![p](https://x.example/p.png) <script>alert(1)</script>'))
-    assert "<strong>Up</strong>" in html and "click" in html
-    for bad in ("<img", "<a", "href", "src=", "<script", "alert(1)"):
-        assert bad not in html
-
-
-def test_parse_profit_and_loss_skips_non_numeric_rows():
-    from report_clerk.services.xero import parse_profit_and_loss
-
-    body = {"Reports": [{"Rows": [
-        {"RowType": "Header", "Cells": []},
-        {"RowType": "Section", "Title": "Income", "Rows": [
-            {"RowType": "Row", "Cells": [{"Value": "Sales"}, {"Value": "1,234.50"}]},
-            {"RowType": "Row", "Cells": [{"Value": "Note"}, {"Value": ""}]},
-            {"RowType": "SummaryRow", "Cells": [{"Value": "Total Income"}, {"Value": "1234.50"}]},
-        ]},
-        {"RowType": "Section", "Title": "", "Rows": [{"RowType": "Row", "Cells": [{"Value": "Net Profit"}, {"Value": "-10.00"}]}]},
-    ]}]}
-    pnl = parse_profit_and_loss(body, date(2026, 11, 1), date(2026, 11, 30))
-    assert [(s.title, [(l.name, l.amount) for l in s.lines], s.total) for s in pnl.sections] == [
-        ("Income", [("Sales", Decimal("1234.50"))], Decimal("1234.50")),
-    ]
-    assert pnl.net_profit == Decimal("-10.00")
+    summary = Report(report, "Sales", template_data, "Saunas lead.").summary()
+    assert ("Net merchandise sales", "AUD 31,070.00") in summary and ("Summary", "Saunas lead.") in summary
 
 
 def test_sales_reconcile_after_discounts_refunds_and_line_pagination(monkeypatch):
@@ -113,8 +86,10 @@ def test_xlsx_external_strings_remain_text():
     from report_clerk.xlsx import build
 
     values = ['=HYPERLINK("https://example.com","click")', '+1', '-1', '@SUM(A1)', 'normal']
-    body = build('=1+1', [('Data', 'rows', ['=column'])], {'rows': [{'=column': v} for v in values]}, render.LOGO)
-    ws = load_workbook(BytesIO(body)).active
+    body = build('=1+1', [('=label', '=value')], [('Data', 'rows', ['=column'])], {'rows': [{'=column': v} for v in values]})
+    wb = load_workbook(BytesIO(body))
+    assert wb['Summary']['A6'].data_type == 's' and wb['Summary']['B6'].data_type == 's'
+    ws = wb['Data']
     assert ws['A3'].data_type == 's'
     assert ws['A5'].data_type == 's'
     for row, value in enumerate(values, 6):

@@ -1,0 +1,65 @@
+{
+ "description": "Synthetic Xero Executive Summary rows per month end: [label, this month, previous month].",
+ "months": {
+  "2026-07-31": [
+   [
+    "Income"
+   ],
+   [
+    "Number of invoices issued",
+    120,
+    110
+   ],
+   [
+    "Average value of invoices",
+    2986,
+    2886
+   ]
+  ],
+  "2026-08-31": [
+   [
+    "Income"
+   ],
+   [
+    "Number of invoices issued",
+    120,
+    110
+   ],
+   [
+    "Average value of invoices",
+    3623,
+    3523
+   ]
+  ],
+  "2026-09-30": [
+   [
+    "Income"
+   ],
+   [
+    "Number of invoices issued",
+    120,
+    110
+   ],
+   [
+    "Average value of invoices",
+    3595,
+    3495
+   ]
+  ],
+  "2026-10-31": [
+   [
+    "Income"
+   ],
+   [
+    "Number of invoices issued",
+    120,
+    110
+   ],
+   [
+    "Average value of invoices",
+    3069,
+    2969
+   ]
+  ]
+ }
+}

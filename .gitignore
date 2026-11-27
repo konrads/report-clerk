@@ -7,5 +7,4 @@ out/
 target/
 .pytest_cache/
 
-.state/
 *.bk

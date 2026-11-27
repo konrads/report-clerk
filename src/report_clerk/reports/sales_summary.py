@@ -18,13 +18,20 @@ def build(services: DataSources, definition: ReportConfig, reporting_date: date)
     if len({o.currency for o in orders}) > 1:
         raise ValueError("Cannot combine sales in different currencies")
     net_merchandise_sales = sum((o.net_merchandise_sales for o in orders), start=0)
+    currency = orders[0].currency if orders else "AUD"
+    average = net_merchandise_sales / len(orders) if orders else 0
     return {
+        "figures": [
+            ("Net merchandise sales", f"{currency} {net_merchandise_sales:,.2f}"),
+            ("Orders", str(len(orders))),
+            ("Average order value", f"{currency} {average:,.2f}"),
+        ],
         "period_start": period_start,
         "period_end": reporting_date,
-        "currency": orders[0].currency if orders else "AUD",
+        "currency": currency,
         "order_count": len(orders),
         "net_merchandise_sales": net_merchandise_sales,
-        "average_order_value": net_merchandise_sales / len(orders) if orders else 0,
+        "average_order_value": average,
         "categories": shopify.sales_by_category(orders),
         "top_products": shopify.top_products(orders, limit=5),
         "daily": shopify.daily_sales(orders),

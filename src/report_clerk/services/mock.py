@@ -1,11 +1,10 @@
 import json
-import re
 from datetime import date
 from pathlib import Path
 
-from report_clerk.services.fishbowl import FishbowlService
 from report_clerk.services.shopify import ShopifyService
 from report_clerk.services.xero import XeroService
+from report_clerk.services.xero import AccountTransactions, long_date
 
 # Stand-ins that replace only the HTTP calls, so parsing and aggregation run as for real.
 
@@ -29,27 +28,18 @@ class MockShopify(ShopifyService):
 
 class MockXero(XeroService):
     def __init__(self, mock_dir: Path):
-        self.pnl = _load(mock_dir, "xero_profit_and_loss.json")
-        self.invoices_body = _load(mock_dir, "xero_invoices.json")
+        self.transactions = _load(mock_dir, "xero_account_transactions.json")["accounts"]
+        self.summaries = _load(mock_dir, "xero_executive_summary.json")["months"]
 
-    def _get(self, path: str, params: dict) -> dict:
-        if path == "Reports/ProfitAndLoss":
-            return self.pnl
-        y, m, d = map(int, re.search(r"DateTime\((\d+),(\d+),(\d+)\)", params["where"]).groups())
-        since = date(y, m, d).isoformat()
-        page = [i for i in self.invoices_body["Invoices"] if i["DateString"][:10] >= since]
-        return {"Invoices": page if params.get("page", 1) == 1 else []}
+    def _account_transactions_rows(self, accounts: list[str], start: date, end: date) -> list[tuple]:
+        rows = [("Account Transactions",), ("Demo Company",), (f"For the period {long_date(start)} to {long_date(end)}",), (), AccountTransactions.HEADER]
+        for label in accounts:
+            lines = [tuple(r) for r in self.transactions.get(label, []) if start.isoformat() <= r[0] <= end.isoformat()]
+            if lines:
+                rows += [(label.split(" - ", 1)[-1],), *((long_date(date.fromisoformat(r[0])), *r[1:]) for r in lines), ("Total",)]
+        return rows
 
+    def _executive_summary_rows(self, month_ends: list[date]) -> dict[date, list[tuple]]:
+        return {m: [("Executive Summary",), (f"For the month ended {long_date(m)}",), *(tuple(r) for r in self.summaries.get(m.isoformat(), []))]
+                for m in month_ends}
 
-class MockFishbowl(FishbowlService):
-    def __init__(self, mock_dir: Path):
-        self.body = _load(mock_dir, "fishbowl_inventory.json")
-
-    def _login(self) -> str:
-        return "mock-token"
-
-    def _logout(self, token: str) -> None:
-        pass
-
-    def _inventory_page(self, token: str, page: int) -> dict:
-        return self.body
